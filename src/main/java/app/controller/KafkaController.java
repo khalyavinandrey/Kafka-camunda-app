@@ -1,6 +1,6 @@
-package com.example.demo.controller;
+package app.controller;
 
-import com.example.demo.dto.Dto;
+import app.dto.RequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class KafkaController {
 
-    private final KafkaTemplate<String, Dto> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @PostMapping("/send")
     public void test() {
-        kafkaTemplate.send("demo-topic", new Dto());
+        kafkaTemplate.send("start-process-message-topic", new RequestDto());
     }
 }

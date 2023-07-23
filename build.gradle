@@ -1,37 +1,68 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.1.1'
-	id 'io.spring.dependency-management' version '1.1.0'
+	id "java"
+	id "idea"
+	id "application"
+	id "org.springframework.boot" version "2.4.5"
+	id "io.spring.dependency-management" version "1.0.11.RELEASE"
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
+group "ch.umb.solutions.consulting.camunda"
+version "1.0.0"
 
-java {
-	sourceCompatibility = '17'
+application {
+	mainClassName = "ch.umb.solutions.consulting.camunda.springbootquickstarter.ProcessApp"
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+bootJar {
+	manifest {
+		attributes "Implementation-Version": "${project.version}"
 	}
+}
+
+ext {
+	camundaVersionCE = "7.15.0"
+	camundaVersionEE = "7.15.0-ee"
 }
 
 repositories {
 	mavenCentral()
 }
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.kafka:spring-kafka'
-	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.5.Final'
-	implementation group: 'org.camunda.bpm.springboot', name: 'camunda-bpm-spring-boot-starter', version: '7.19.0'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.kafka:spring-kafka-test'
+dependencyManagement {
+	imports {
+		mavenBom "org.camunda.bpm:camunda-bom:${camundaVersionCE}"
+	}
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+dependencies {
+	implementation "org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-webapp:${camundaVersionCE}"
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	implementation "org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-rest:${camundaVersionCE}"
+	implementation "org.springframework.boot:spring-boot-starter-jdbc"
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation "org.camunda.spin:camunda-spin-dataformat-all"
+	implementation "org.camunda.bpm:camunda-engine-plugin-spin"
+	implementation "org.postgresql:postgresql"
+	implementation "javax.activation:javax.activation-api:1.2.0"
+	implementation "javax.xml.bind:jaxb-api:2.3.1"
+	implementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	compileOnly 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
+	implementation 'org.mapstruct:mapstruct:1.5.3.Final'
+	testImplementation "org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter-test:${camundaVersionCE}"
+	testImplementation "org.camunda.bpm.extension:camunda-bpm-assert-scenario:1.0.0"
+	testImplementation "org.camunda.bpm.extension:camunda-bpm-process-test-coverage:0.4.0"
+	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly "org.springframework.boot:spring-boot-devtools"
+	compileOnly 'org.projectlombok:lombok:1.18.14'
+
+}
+
+clean {
+	delete 'target'
 }

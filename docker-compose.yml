@@ -34,6 +34,14 @@ services:
     networks:
       - kafkanet
 
+  wiremock:
+    image: rodolpheche/wiremock
+    ports:
+      - '8081:8080'
+    networks:
+      - kafkanet
+
+
 networks:
   kafkanet:
     driver: bridge

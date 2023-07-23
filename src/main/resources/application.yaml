@@ -1,0 +1,22 @@
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+  filter:
+    create: All Tasks
+  generic-properties:
+    properties:
+      initializeTelemetry: false
+  default-serialization-format: application/json
+  authorization:
+    enabled: true
+
+spring:
+  datasource:
+    type: org.postgresql.ds.PGSimpleDataSource
+    username: user
+    password: password
+    url: jdbc:postgresql://localhost:5432/postgres
+  kafka:
+    bootstrap-servers: localhost:9092
+

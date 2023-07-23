@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_17w34co" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.13.0">
+  <bpmn:process id="sample-process" name="sample-process" isExecutable="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener event="start">
+        <camunda:script scriptFormat="javascript">var system = java.lang.System; system.out.println('Process start listener executed.');</camunda:script>
+      </camunda:executionListener>
+      <camunda:executionListener event="end">
+        <camunda:script scriptFormat="javascript">var system = java.lang.System; system.out.println('Process end listener executed.');</camunda:script>
+      </camunda:executionListener>
+    </bpmn:extensionElements>
+    <bpmn:sequenceFlow id="Flow_0syirrd" sourceRef="StartEvent_1" targetRef="ServiceTask_GetItemDetails" />
+    <bpmn:serviceTask id="ServiceTask_GetItemDetails" name="Check for duplicates in DB" camunda:delegateExpression="${checkDuplicatesDelegate}">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0syirrd</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q8jddx</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="StartEvent_1" name="start camunda process">
+      <bpmn:outgoing>Flow_0syirrd</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1fepbm7" messageRef="Message_15fq5g9" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0q8jddx" sourceRef="ServiceTask_GetItemDetails" targetRef="Activity_025htbg" />
+    <bpmn:serviceTask id="Activity_025htbg" name="Save message to DB" camunda:delegateExpression="${saveMessageDelegate}">
+      <bpmn:incoming>Flow_0q8jddx</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ebkbni</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0wr2cme" name="Send POST request to wiremock" camunda:delegateExpression="${sendPostRequest}">
+      <bpmn:incoming>Flow_12hfko1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nmhn58</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_0y63t0u" name="Check if&#10;counter &#62;= 10">
+      <bpmn:incoming>Flow_0ebkbni</bpmn:incoming>
+      <bpmn:outgoing>Flow_12hfko1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0n3am6a</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0ebkbni" sourceRef="Activity_025htbg" targetRef="Gateway_0y63t0u" />
+    <bpmn:sequenceFlow id="Flow_12hfko1" name="counter &#62;= 10" sourceRef="Gateway_0y63t0u" targetRef="Activity_0wr2cme">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{counter &gt;= 10}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_132fqay">
+      <bpmn:incoming>Flow_0n3am6a</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0n3am6a" name="counter &#60; 10" sourceRef="Gateway_0y63t0u" targetRef="Event_132fqay">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{counter &lt; 10}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0nmhn58" sourceRef="Activity_0wr2cme" targetRef="Activity_04h7hlz" />
+    <bpmn:serviceTask id="Activity_04h7hlz" name="Send HTTP status to Kafka" camunda:delegateExpression="${sendStatusDelegate}">
+      <bpmn:incoming>Flow_0nmhn58</bpmn:incoming>
+      <bpmn:outgoing>Flow_0val2bh</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_0vwz3my">
+      <bpmn:incoming>Flow_0val2bh</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0val2bh" sourceRef="Activity_04h7hlz" targetRef="Event_0vwz3my" />
+  </bpmn:process>
+  <bpmn:message id="Message_15fq5g9" name="StartMessage" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="sample-process">
+      <bpmndi:BPMNShape id="Gateway_0y63t0u_di" bpmnElement="Gateway_0y63t0u" isMarkerVisible="true">
+        <dc:Bounds x="605" y="162" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="596" y="217" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_132fqay_di" bpmnElement="Event_132fqay">
+        <dc:Bounds x="612" y="72" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1s3zk7q_di" bpmnElement="Activity_0wr2cme">
+        <dc:Bounds x="730" y="147" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12t4iip_di" bpmnElement="Activity_025htbg">
+        <dc:Bounds x="430" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15l8ker_di" bpmnElement="ServiceTask_GetItemDetails">
+        <dc:Bounds x="250" y="147" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_137xv6p_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="172" y="169" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="155" y="212" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ei82hd_di" bpmnElement="Activity_04h7hlz">
+        <dc:Bounds x="910" y="147" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0nz8rzv" bpmnElement="Event_0vwz3my">
+        <dc:Bounds x="1052" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0ebkbni_di" bpmnElement="Flow_0ebkbni">
+        <di:waypoint x="530" y="187" />
+        <di:waypoint x="605" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12hfko1_di" bpmnElement="Flow_12hfko1">
+        <di:waypoint x="655" y="187" />
+        <di:waypoint x="730" y="187" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="656" y="167" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n3am6a_di" bpmnElement="Flow_0n3am6a">
+        <di:waypoint x="630" y="162" />
+        <di:waypoint x="630" y="108" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="559" y="123" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nmhn58_di" bpmnElement="Flow_0nmhn58">
+        <di:waypoint x="830" y="187" />
+        <di:waypoint x="910" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0syirrd_di" bpmnElement="Flow_0syirrd">
+        <di:waypoint x="208" y="187" />
+        <di:waypoint x="250" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q8jddx_di" bpmnElement="Flow_0q8jddx">
+        <di:waypoint x="350" y="187" />
+        <di:waypoint x="430" y="187" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0val2bh_di" bpmnElement="Flow_0val2bh">
+        <di:waypoint x="1010" y="187" />
+        <di:waypoint x="1052" y="187" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
